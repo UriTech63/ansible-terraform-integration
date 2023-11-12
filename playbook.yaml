@@ -1,0 +1,43 @@
+---
+- name: wait for ssh connection
+  hosts: all
+  gather_facts: no
+  tasks:
+    - name: waiting for ssh to open
+      wait_for:
+        port: 22
+        host: '{{ (ansible_ssh_host|default(ansible_host))|default(inventory_hostname) }}'
+        search_regex: OpenSSH
+        delay: 10
+        timeout: 100
+      vars:
+        ansible_connection: local
+
+- name: Register vars
+  hosts: all
+  gather_facts: no
+  tasks:
+    - name: show password
+      shell:  |
+       cat /etc/passwd
+      register: password
+    - name: print passoword
+      debug:
+        msg: "{{password}}"
+
+
+- name: prompt variable
+  hosts: all
+  gather_facts: no
+  vars_prompt:
+    - name: user_name
+      prompt: please enter your name
+      private: no
+    - name: fav
+      prompt: please enter yout fav number
+      private: yes
+  tasks:
+   - name: testing prompt vars
+     debug:
+       msg: "My name is {{user_name}} and my favourite number is {{fav}}"
+~
